@@ -331,12 +331,12 @@ public class CustomShape {
                 pointsX[6], pointsY[6]
             });
             double halfWidth = ((x-startX)/2);
-            double halfHeight = ((x-startX)/2);
+            double halfHeight = ((y-startY)/2);
             double quarterHeight = ((y-startY)/4);
-            pointsX = new double[]{startX, x-halfWidth, x-halfWidth, x, 
-                        x, x-halfWidth, x-halfWidth};
-            pointsY = new double[]{startY+halfHeight, startY, startY+quarterHeight, 
-                        startY+quarterHeight, y-quarterHeight, y-quarterHeight, y};
+            pointsX = new double[]{startX, startX+halfWidth, startX+halfWidth, x, 
+                        x-halfWidth, x-halfWidth, startX};
+            pointsY = new double[]{startY+quarterHeight, startY+quarterHeight, startY, 
+                        startY+halfHeight, y, y-quarterHeight, y-quarterHeight};
             arrow.getPoints().addAll(new Double[]{
                 pointsX[0], pointsY[0], pointsX[1], pointsY[1],
                 pointsX[2], pointsY[2], pointsX[3], pointsY[3],
@@ -355,7 +355,7 @@ public class CustomShape {
             });
             double halfWidth = ((x-startX)/2);
             double quarterWidth = ((x-startX)/4);
-            double halfHeight = ((x-startX)/2);
+            double halfHeight = ((y-startY)/2);
             pointsX = new double[]{startX, startX+quarterWidth, startX+quarterWidth, 
                         x-quarterWidth, x-quarterWidth, x, x-halfWidth}; 
             pointsY = new double[]{startY+halfHeight, startY+halfHeight, startY,
