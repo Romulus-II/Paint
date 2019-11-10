@@ -1,0 +1,156 @@
+Version 0.7.0 (Beta)
+The Clean Up
+
+What's New:
+-Separate color pickers for outline and fill
+-Text Box now scales with height
+-Updated Tool Descriptions in Help Menu
+-Removed Edit and Image menus
+
+Bug Fixes:
+-Fixed a bug that caused user to have to click undo twice after using redo
+
+What's Next:
+-Ability to work across multiple layers
+-Ability to rotate and flip canvas
+________________________________________________________________________________
+
+Version 0.6.0 (Beta)
+Startup Rework
+
+What's New:
+-You can copy an area of the image
+-Pop up now shows on startup, allowing you to either start a new project, open
+ the previous project, or open an image from your gallery to work on.
+-You can now work on the previous session
+-Text Box now scales with height
+-Tool Descriptions on hover
+
+What's Next:
+-Separate color pickers for outline and fill
+-Ability to rotate and flip canvas
+________________________________________________________________________________
+
+Version 0.5.0 (Beta)
+Save Rework
+
+What's New:
+-Your session now auto saves to a remote file
+-Added a timer that tracks auto save time
+-View Menu has a button to toggle timer visibility
+-Arrow Shapes
+
+Bug Fixes:
+-Files now save as their correct types
+
+Known Issues:
+-Text Box is still rather boring
+
+What's Next:
+-Separate color pickers for outline and fill
+-Ability to rotate canvas
+-Copy and paste of area of canvas
+-Tool Descriptions
+________________________________________________________________________________
+
+Version 0.4.0 (Beta)
+The Massive Overhaul Part 2
+
+What's New:
+-Canvas Resizing!! (Finally)
+-Added diamonds, triangles, and polygons
+-Added Text Box
+-Redo button actually works
+-Zoom tool zooms in on canvas
+-Help now has can now open application info, release notes, and tool 
+ descriptions
+
+Bug Fixes:
+-Zoom is now properly accounted for
+
+Known Issues:
+-Text Box is rather lackluster
+
+What's Next:
+-Separate color pickers for outline and fill
+-Even more shapes
+-Ability to rotate canvas
+-Ability to flip canvas
+________________________________________________________________________________
+
+Version 0.3.0 (Beta)
+The Massive OverHaul Part 1
+
+What's New:
+-Added squares, rectangle, circles, ovals
+-You can now zoom in and zoom out
+-Added Undo Button
+-Added colorful, amazing tools
+-Added color grabber
+-Added shape fill and shape outline
+-Added eraser
+
+Known Issues:
+-Zoom adjusts image size
+-Redo Button currently does nothing
+
+What's Next:
+-Canvas resizing
+-Redo
+-More shapes
+-Ability to rotate canvas
+-Ability to flip canvas
+________________________________________________________________________________
+
+Version 0.2.1 (Beta)
+Line Correction
+
+Bug Fixes:
+-Changing Line width and color now only affects new lines
+________________________________________________________________________________
+
+Version 0.2.0 (Beta)
+The First Steps
+
+What's New:
+-Save File Button has been split into 2 separate buttons: Save and Save as
+-You can draw!
+-You can now create lines
+-Added various line widths
+-Added color (Yay!)
+-Exit App button now allows user to save, don't save, or cancel (Smart Save)
+-Help now has an About button that also contains the release notes
+-Canvas now resizes to fit image size instead of the other way around
+-Scrollbars now appear if image is bigger than window
+
+Known Issues:
+-While line button is toggled on, making new lines changes the thickness and 
+ color of all previous lines to match the current line
+-Images currently still stack on top of each other
+-Edit, View, and Image are still merely stubs
+
+What's Next:
+-Creation of eraser
+-Add shapes to canvas
+-Ability to rotate the canvas
+-Ability to flip the canvas
+________________________________________________________________________________
+
+Version 0.1.0 (Beta)
+Official Launch!
+
+What's New:
+-You can now upload an image from a directory.
+-You can now save an image to your directory.
+-Exit App button currently closes app after user confirmation.
+
+Known Issues:
+-You can stack multiple images on top of each other if more
+ than one is opened
+-Currently, Edit, View, Image, and Help do nothing
+
+What's Next:
+-Creation of brush
+-Creation of eraser
+-Ability to rotate the canvas
+-Ability to flip canvas

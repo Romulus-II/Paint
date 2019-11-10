@@ -1,0 +1,25 @@
+/images/undo.png%Undo: Undo the last action
+/images/redo.png%Redo: Redo the last undone action
+/images/select_rect.png%Select: Select an area of the canvas to be moved
+Move%Move: Move selected area of the canvas
+Copy%Copy: Copy selected area of the canvas
+/images/color_pencil.png%Pencil: Free Draw lines
+/images/txt_box.png%Text Box: Enter text and place it on mouse click
+/images/eraser.png%Eraser: Erase your mistakes
+/images/color_grabber.png%Color Grabber: Get color value of selected point
+/images/zoom.png%Zoom: Zooms in on mouse click
+/images/line.png%Line: Click and drag to make a line
+/images/circle.png%Circle: Click and drag to make a circle
+/images/ellipse.png%Ellipse: Click and drag to make an ellipse
+/images/square.png%Square: Click and drag to make a square
+/images/rectangle.png%Rectangle: Click and drag to make a rectangle
+/images/diamond.png%Diamond: Click and drag to make a diamond
+/images/right_triangle.png%Triangle: Click and drag to make a right-triangle
+/images/free_draw_polygon.png%Polygon: Enter number of sides, then click and drag to make an n polygon
+/images/left_arrow.png%Left Arrow: Click and drag to make a left arrow
+/images/right_arrow.png%Right Arrow: Click and drag to make a right arrow
+/images/up_arrow.png%Up Arrow: Click and drag to make an up arrow
+/images/down_arrow.png%Down arrow: Click and drag to make a down arrow
+Width%Width: Set line/shape width
+Fill%Fill: Designate if shapes are filled or not
+Outling%Outline: Designate if shapes are outlined or not

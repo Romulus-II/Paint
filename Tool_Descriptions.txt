@@ -1,0 +1,22 @@
+Select:Select a part of the picture.
+Move:Move the selection from the canvas.
+Copy:Copy the selection from the canvas.
+Pencil:Draw a free-from line with the selected line width.
+Paint:Nothing
+Text:Insert text into the picture.
+Eraser:Erase part of the picture and replace it with the background color.
+Color_Picker:Pick a color from the picture and use it for drawing.
+Magnifier:Zoom in on the picture.
+Line: 
+Circle:  
+Oval:  
+Square:  
+Rectangle:  
+Diamond:  
+Right_Triangle:  
+Polygon:  
+Left_Arrow:  
+Up_Arrow:  
+Right_Arrow:  
+Down_Arrow:   
+
