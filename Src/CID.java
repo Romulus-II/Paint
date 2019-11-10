@@ -16,6 +16,10 @@ public class CID {
     
     private String id;
     
+    /**
+     *
+     * @param inputColor
+     */
     public CID(Color inputColor){       
         double blueV = inputColor.getBlue() * 255;
         double redV = inputColor.getRed() * 255;
@@ -44,11 +48,18 @@ public class CID {
     }
     
     
-    
+    /**
+     * Sets the id equals to the color the given name.
+     * @param name 
+     */
     private void setColorName(String name) {
         id = name;
     }
     
+    /**
+     * Returns the color id. 
+     * @return id
+     */
     public String getID(){
         return id;
     }

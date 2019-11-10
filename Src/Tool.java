@@ -5,13 +5,15 @@
  */
 package paintbackup;
 
-import java.util.ArrayList;
-import javafx.geometry.Bounds;
+import javafx.event.EventHandler;
+import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.stage.Popup;
+import javafx.stage.Stage;
 
 /**
  *
@@ -19,50 +21,67 @@ import javafx.stage.Popup;
  */
 public class Tool extends ToggleButton {
     
-    //private final double DESC_WIDTH, DESC_HEIGHT;
+    private final double DESC_WIDTH, DESC_HEIGHT;
     private final int BTN_WIDTH = 25;
     private String name;
     
     private boolean nameIsPath = false;
-    //private StackPane description;
     
+    /**
+     * Basic Constructor
+     */
     public Tool() {
         super();
-        //DESC_WIDTH = 0;
-        //DESC_HEIGHT = 0;
+        DESC_WIDTH = 0;
+        DESC_HEIGHT = 0;
     }
     
+    /**
+     * Creates a tool/toggle button with name inside of it.
+     * @param name 
+     */
     public Tool(String name){
         super(name);
         this.name = name;
+        DESC_WIDTH = 0;
+        DESC_HEIGHT = 0;
     }
     
+    /**
+     * Creates a tool/toggle button with the name inside of it, resized
+     * to the supplied width.
+     * @param name
+     * @param width 
+     */
     public Tool(String name, int width){
         super();
-        this.name = name;
-        //setWidth(width);
+        //this.name = name;
+        setWidth(width);
+        DESC_WIDTH = 0;
+        DESC_HEIGHT = 0;
     }
     
-    public Tool(int b, String path) {
+    /**
+     * Creates a tool/toggle button with its graphics set the image file path,
+     * resized to the supplied width.
+     * @param width
+     * @param path 
+     */
+    public Tool(int width, String path) {
         super();
-        //DESC_WIDTH = 0;
-        //DESC_HEIGHT = 0;
-        this.paint(b, path);
-        name = path;
+        DESC_WIDTH = 0;
+        DESC_HEIGHT = 0;
+        this.paint(width, path);
+        //name = path;
         nameIsPath = true;
     }
     
-    public Tool(boolean isShape) {
-        super();
-        //description = new StackPane();
-        /*if(isShape){
-            DESC_WIDTH = 100;
-            DESC_HEIGHT = 50;
-        }else{
-            DESC_WIDTH = 250;
-            DESC_HEIGHT = 150;
-        }*/
-        //description.setPrefSize(DESC_WIDTH, DESC_HEIGHT);
+    /**
+     * Sets this tool's name to name.
+     * @param name 
+     */
+    public void setName(String name){
+        this.name = name;
     }
     
     /**
@@ -101,21 +120,31 @@ public class Tool extends ToggleButton {
         //Find a way to convert '_' in name to spaces (' ')
     }
     
-    
-    
-    
-    /*public void setDescription(String desc){
+    /**
+     * Creates a pop up of the tool's description that pops up on mouse hover.
+     * @param window
+     * @param desc 
+     */
+    public void setDescription(Stage window, String desc){
         Popup popup = new Popup();
-        popup.getContent().add(description);
-        this.hoverProperty().addListener((obs, oldVal, newValue) -> {
-            if(newValue){
-                Bounds bnds = description.localToScreen(description.getLayoutBounds());
-                double x = bnds.getMinX() - (description.getWidth() / 2) + (description.getWidth());
-                double y = bnds.getMinY() - description.getHeight();
-                popup.show(description, x, y);
+        this.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override public void handle(MouseEvent mouseEvent) {
+                Label label = new Label(desc);
+                label.setWrapText(true);
+                popup.getContent().add(label);
+                popup.getScene().setFill(Color.DARKORANGE);
+                popup.setX(getLayoutX() + getWidth() + 350);
+                popup.setWidth(DESC_WIDTH);
+                popup.setY(getLayoutY() + getHeight() + 75);
+                popup.setHeight(DESC_HEIGHT);
+                popup.show(window);
             }
-
         });
-    }*/
+        this.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override public void handle(MouseEvent mouseEvent) {
+                popup.hide();
+            }
+        });
+    }
             
 }

@@ -32,6 +32,14 @@ public class Anchor extends Rectangle{
     
     private double startX, startY, newX, newY;
     
+    /**
+     * Creates an anchor object, which allows for easy resizing of the canvas.
+     * @param canvas
+     * @param movement
+     * @param x
+     * @param y
+     * @param w 
+     */
     public Anchor(Canvas canvas, String movement, double x, double y, double w){
         super(x, y, w, w);
         this.x = x;
@@ -131,6 +139,10 @@ public class Anchor extends Rectangle{
         });
     }
     
+    /**
+     * Adjusts position of given anchor based on this anchor.
+     * @param a 
+     */
     private void refractor(Anchor a){
         if(a.movement.equals("horizontal")){
             if(a.y != canvas.getHeight()/2){

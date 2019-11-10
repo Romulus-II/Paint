@@ -2,8 +2,10 @@ package paintbackup;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
@@ -11,33 +13,22 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.Slider;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Box;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javax.imageio.ImageIO;
 
 /**
  *
@@ -45,33 +36,43 @@ import javax.imageio.ImageIO;
  */
 public class CustomMenu extends MenuBar{
     
-    private HBox menubars;
-    
-    private MenuItem openFile, save, saveAs, exitApp, zoomIn, zoomOut;
-    private MenuItem about, releaseNotes, toolDescription;
+    private final MenuItem openFile, save, saveAs, exitApp, zoomIn, zoomOut;
+    private final MenuItem about, releaseNotes, toolDescription;
     
     private DynamicCanvas canvas;
     
-    private FileHandler fh;
+    private final FileHandler fh;
     
     private boolean timerShown = true;
     
+    private final Thread thread;
+    
+    /**
+     * Stops the logging thread
+     */
+    public void scrap(){thread.stop();}
+    
+    /**
+     * Creates a menu which acts as a mediator, allowing the user to interact
+     * with the file and project.
+     * @param fh 
+     */
     public CustomMenu(FileHandler fh){
-        
         this.fh = fh;
         
         canvas = fh.getDynamicCanvas();
-        
-        //Autosave timer
+
+    //Autosave timer
         Label time = new Label();
         Timer timer = new Timer(fh, time);
+        thread = new Thread(timer);
+        time.textProperty().bind(timer.getTime());
         Menu clock = new Menu("", time);
         
         Menu fill = new Menu();
         fill.setDisable(true);
         
-        
-        //Declare sub-menus and add to main menu
+    //File
         Menu file = new Menu("File");
         openFile = new MenuItem("Open");
         save = new MenuItem("Save");
@@ -80,12 +81,11 @@ public class CustomMenu extends MenuBar{
         file.getItems().addAll(openFile, save, saveAs,exitApp);
         
         openFile.setOnAction((ActionEvent event) -> {
-            boolean cond = fh.open();
-            if(cond){timer.reset();}
+            fh.showExitWarning(false);
         });
         openFile.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         save.setOnAction((ActionEvent event) -> {
-            boolean cond = fh.save();
+              boolean cond = fh.save();
             if(cond){timer.reset();}
         });
         save.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
@@ -96,27 +96,11 @@ public class CustomMenu extends MenuBar{
         saveAs.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.ALT_DOWN,
                 KeyCombination.CONTROL_DOWN));
         exitApp.setOnAction((ActionEvent event) -> {
-            fh.exitApp();
+            fh.showExitWarning(true);
         });
         exitApp.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN));
        
-        
-        
-        Menu test = new Menu("Test");
-        MenuItem warning = new MenuItem("Warning");
-        test.getItems().add(warning);
-        warning.setOnAction((ActionEvent event) -> {
-            GetApproval ga = new GetApproval();
-            System.out.println("Started runnable");
-            ga.run();
-            System.out.println("Exited runnable");
-        });
-        
-        
-        Menu edit = new Menu("Edit");
-        MenuItem properties = new MenuItem("Properties");
-        edit.getItems().add(properties);
-        
+    //View
         Menu view = new Menu("View");
         //Add a resetZoom
         MenuItem showTime = new MenuItem("Hide Timer");
@@ -132,14 +116,9 @@ public class CustomMenu extends MenuBar{
         zoomOut.setOnAction((ActionEvent event) -> {
             canvas.zoomOut();
         });
-        zoomOut.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.ALT_DOWN));
+        zoomOut.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.ALT_DOWN));
         
-        
-        Menu image = new Menu("Image");
-        MenuItem rotate = new MenuItem("Rotate");
-        MenuItem flip = new MenuItem("Flip");
-        image.getItems().addAll(rotate, flip);
-        
+    //Help 
         Menu help = new Menu("Help");
         about = new MenuItem("About");
         about.setOnAction((ActionEvent event) -> {
@@ -156,7 +135,7 @@ public class CustomMenu extends MenuBar{
         help.getItems().addAll(about, releaseNotes, toolDescription);
         
         
-        getMenus().addAll(file, edit, view, image, help, fill, clock);
+        getMenus().addAll(file, view, help, fill, clock);
         
         showTime.setOnAction(new EventHandler() {
             @Override
@@ -173,17 +152,15 @@ public class CustomMenu extends MenuBar{
             }
         });
         
+        //Starts the timer thread
+        thread.start();
+        
     }
+    
     
     /**
-     * Returns the physical menu component that will be used.
-     * 
-     * @return HBox
+     * Shows a basic description of this application.
      */
-    public HBox getMenuBars(){
-        return menubars;
-    }
-    
     private void showAbout(){
         try{
             Stage popupwindow=new Stage();
@@ -197,12 +174,8 @@ public class CustomMenu extends MenuBar{
             desc.setWrapText(true);
 
             Button close = new Button("Ok");
-            close.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent e) {
-                    //fh.getLogFile().close();
-                    popupwindow.close();
-                }
+            close.setOnAction((ActionEvent e) -> {
+                popupwindow.close();
             });
 
             VBox layout= new VBox();
@@ -219,6 +192,9 @@ public class CustomMenu extends MenuBar{
         }
     }
 
+    /**
+     * Opens a pop up containing the release notes.
+     */
     private void showReleaseNotes(){
         try{
             final int WIDTH = 550;
@@ -266,75 +242,52 @@ public class CustomMenu extends MenuBar{
         }
     }
     
+    /**
+     * Opens a pop up displaying Tool Descriptions.
+     */
     private void showToolDescriptions(){
         try{
             final int WIDTH = 550;
             final int HEIGHT = 500;
             
             GridPane desc = new GridPane();
-            final int numRows = 20;
+            final int numRows = 25;
             
             for(int i = 0; i < numRows; i++){
                 desc.add(new Separator(), 1, i);
             }
-            //Read in Release Notes and apply to label
-            /*File help_file = new File("Tool_Descriptions.txt");
-            StringBuffer contents = new StringBuffer();
-            BufferedReader reader = null;
-            
-            reader = new BufferedReader(new FileReader(help_file));
-            String text = null;
-            // repeat until all lines is read
-            int i = 0;
-            while ((reader.readLine()) != null) {              
-                Label temp = new Label(reader.readLine());
-                desc.add(temp, 2 , i);
-                i++;
+
+            //Read in Release Notes and apply to label            
+            try{
+                Scanner x = new Scanner(new File("Descriptions.txt"));
+                int index = 0;
+                while(x.hasNext()){ // while loop keeps going until it reaches the end of the file
+                    String line = x.nextLine();
+
+                    int sep = line.indexOf("%");
+                    String name = line.substring(0, sep);
+                    String description = line.substring(sep+1);
+                    
+                    if(name.contains("/")){
+                        desc.add(getImageView(name), 0, index);
+                    }else{
+                        desc.add(new Label(name), 0, index);
+                    }
+                    desc.add(new Label(description), 2, index);
+                    index++;
+                }
+                
+                x.close();
             }
-            reader.close();
-            System.out.println("Opened Tool Description");
-            */    
-            desc.add(getImageView("/undo.png"), 0, 0);
-            desc.add(new Label("Undo: Undo the last action"), 2, 0);
-            desc.add(getImageView("/redo.png"), 0, 1);
-            desc.add(new Label("Redo: Redo the last undone action"), 2, 1);
-            desc.add(getImageView("/select_rect.png"), 0, 2);
-            desc.add(new Label("Select: Select an area of the canvas to be moved"), 2, 2);
-            desc.add(new Label("Move"), 0, 3);
-            desc.add(new Label("Move: Move selected area of the canvas"), 2, 3);
-            desc.add(getImageView("/color_pencil.png"), 0, 4);
-            desc.add(new Label("Pencil: Free Draw lines"), 2, 4);
-            desc.add(getImageView("/txt_box.png"), 0, 5);
-            desc.add(new Label("Text Box: Enter text and place it on mouse click"), 2, 5);
-            desc.add(getImageView("/eraser.png"), 0, 6);
-            desc.add(new Label("Eraser: Erase your mistakes"), 2, 6);
-            desc.add(getImageView("/color_grabber.png"), 0, 7);
-            desc.add(new Label("Color Grabber: Get color value of selected point"), 2, 7);
-            desc.add(getImageView("/zoom.png"), 0, 8);
-            desc.add(new Label("Zoom: Zooms in on mouse click"), 2, 8);
-            desc.add(getImageView("/line.png"), 0, 9);
-            desc.add(new Label("Line: Click and drag to make a line"), 2, 9);
-            desc.add(getImageView("/circle.png"), 0, 10);
-            desc.add(new Label("Circle: Click and drag to make a circle"), 2, 10);
-            desc.add(getImageView("/ellipse.png"), 0, 11);
-            desc.add(new Label("Ellipse: Click and drag to make an ellipse"), 2, 11);
-            desc.add(getImageView("/square.png"), 0, 12);
-            desc.add(new Label("Square: Click and drag to make a square"), 2, 12);
-            desc.add(getImageView("/rectangle.png"), 0, 13);
-            desc.add(new Label("Rectangle: Click and drag to make a rectangle"), 2, 13);
-            desc.add(getImageView("/diamond.png"), 0, 14);
-            desc.add(new Label("Diamond: Click and drag to make a diamond"), 2, 14);
-            desc.add(getImageView("/right_triangle.png"), 0, 15);
-            desc.add(new Label("Triangle: Click and drag to make a right-triangle"), 2, 15);
-            desc.add(getImageView("/free_draw_polygon.png"), 0, 16);
-            desc.add(new Label("Polygon: Enter number of sides, then click and drag to make an n polygon"), 2, 16);
-            desc.add(new Label("Width"), 0, 17);
-            desc.add(new Label("Width: Set line/shape width"), 2, 17);
-            desc.add(new Label("Fill"), 0, 18);
-            desc.add(new Label("Fill: Designate if shapes are filled or not"), 2, 18);
-            desc.add(new Label("Outline"), 0, 19);
-            desc.add(new Label("Outline: Designate if shapes are outlined or not"), 2, 19);
+            catch(FileNotFoundException e){
+                System.out.println("Could not find file");
+                e.printStackTrace();
+            }
+            catch(Exception e){
+                System.out.println("Could not find file");
+            }
             
+            System.out.println("Opened Tool Description");
             Stage popupwindow = new Stage();
             popupwindow.initModality(Modality.APPLICATION_MODAL);
             popupwindow.setTitle("Tool Descriptions");
@@ -362,6 +315,12 @@ public class CustomMenu extends MenuBar{
         }
     }
     
+    /**
+     * Returns an ImageView of the provided image and formats it to fit the
+     * global button width.
+     * @param path
+     * @return icon
+     */
     private ImageView getImageView(String path){
         final int BTN_WIDTH = 25;
         Image img = new Image(path, BTN_WIDTH, BTN_WIDTH, false, false);
@@ -369,29 +328,3 @@ public class CustomMenu extends MenuBar{
         return icon;
     }
 }
-
-/*class Task extends Thread{
-    
-    DynamicCanvas canvas;
-    
-    File file;
-    
-    FileHandler fh;
-    
-    public Task(DynamicCanvas canvas, FileHandler fh, File file){
-        this.canvas = canvas;
-        this.fh = fh;
-        this.file = file;
-    }
-    
-    public void run() {
-        try {
-            ImageIO.write(canvas.screenshot(false), fh.getFileExt(file), file);
-            System.out.println("File automatically saved as " + file.toString());
-            //canvas.fileSaved = true;
-        } catch (Exception ex) {
-            Logger.getLogger(PaintBackUp.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("Could not sutomatically save file");
-        }
-    }
-}*/

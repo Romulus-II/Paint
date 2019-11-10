@@ -9,17 +9,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
@@ -37,7 +31,6 @@ import javax.imageio.ImageIO;
  */
 
 public class FileHandler {
-    
     private String fileName;
     private File selectedFile, dummyFile;
     private String origExt;
@@ -47,43 +40,68 @@ public class FileHandler {
     
     private boolean imageLoaded = false;
     
-    //Test variable to be used for if user changes datatypes
-    boolean userSaidYes = false;
-    
-    
     private final DynamicCanvas canvas;
     private final Stage window;
+    private CustomMenu menu = null;
     
-    private final LogFile logger;
+    private LogFile logger;
     
-    public FileHandler(Stage window, DynamicCanvas canvas, LogFile logger){
-        
-        this.logger = logger;
-        
+    private Thread thread;
+    
+    /**
+     * This class is used to handle all things relating to files, including but
+     * not limited to opening and saving files.
+     * @param window
+     * @param canvas
+     * @param logger
+     * @param action
+     * @throws IOException 
+     */
+    public FileHandler(Stage window, DynamicCanvas canvas, LogFile logger, String action) throws IOException{
+                
         this.window = window;
         
         this.canvas = canvas;
+        
+        this.logger = logger;
+        thread = new Thread(logger);
+        thread.start();
+        
+        if(action.equals("openPrevious")){
+            try{
+                File openFile = new File(System.getProperty("user.dir") + File.separator + "Untitled.png");
+                Image img = new Image(openFile.toURI().toString());
+                canvas.openImage(img);
+            }catch(Exception e){
+                System.out.println("Couldn't open file on startup");
+                e.printStackTrace();
+            }
+        }
         
         try {
             //dummyFile = new File(".");
             String path = System.getProperty("user.dir");
             fileName = "Untitled";
             dummyFile = new File(path + File.separator + fileName + ".png");
-            //dummyFile = new File("Untitled.png");
+            dummyFile = new File("Untitled.png");
             origExt = getFileExt(dummyFile);
-            ImageIO.write(canvas.screenshot(false), getFileExt(dummyFile), dummyFile);
-            System.out.println("File successfully saved as " + dummyFile.toString());
+            //ImageIO.write(canvas.screenshot(), getFileExt(dummyFile), dummyFile);
+            //System.out.println("File successfully saved as " + dummyFile.toString());
             //System.out.println(getFileName());
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        if(action.equals("openFromGallery")){
+            open();
+        }
     }
-    
-    public LogFile getLogFile(){
-        return logger;
-    }
-    public void close(){
-        logger.publish();
+    /**
+     * To be used to allow for the shutdown of menu's thread. Absolutely essential!!
+     * @param menu 
+     */
+    public void setMenu(CustomMenu menu){
+        this.menu = menu;
     }
     
     /**
@@ -95,6 +113,12 @@ public class FileHandler {
         return canvas;
     }
     
+    /**
+     * Makes a FileChooser object with extensions .png, .jgp, and .ico, to be 
+     * used with opening from and saving images to a user directory.
+     * 
+     * @return FileChooser 
+     */
     private FileChooser makeFileChooser(){
         FileChooser f = new FileChooser();
         
@@ -103,8 +127,7 @@ public class FileHandler {
             //one on top is selected 1st
             new FileChooser.ExtensionFilter("PNG Files", "*.png"),
             new FileChooser.ExtensionFilter("JPG Files", "*.jpg"),
-            new FileChooser.ExtensionFilter("Icon Files", "*.ico"),
-            new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
+            new FileChooser.ExtensionFilter("Icon Files", "*.ico")
         );
         
         return f;
@@ -116,16 +139,21 @@ public class FileHandler {
      * @return String
      */
     private String getFileName(){
-        String fileName = selectedFile.toString();
+        String name;
+        if(selectedFile!=null){
+            name = selectedFile.toString();
+        }else{
+            name = dummyFile.toString();
+        }
         
         //Searches for actually file name from path
-        int left_bound = fileName.lastIndexOf(File.separator) + 1;
-        int right_bound = fileName.indexOf('.');
+        int left_bound = name.lastIndexOf(File.separator) + 1;
+        int right_bound = name.indexOf('.');
         
         try{
-            return fileName.substring(left_bound, right_bound);
+            return name.substring(left_bound, right_bound);
         } catch (Exception e){
-            return fileName.substring(0, right_bound);
+            return name.substring(0, right_bound);
         }
     }
     
@@ -136,20 +164,18 @@ public class FileHandler {
      * @return fileExtension
      */
     public String getFileExt(File file){
-        String fileName = file.toString();
-        int leftBound = fileName.indexOf('.');
+        String name = file.toString();
+        int leftBound = name.indexOf('.');
         leftBound++;
-        return fileName.substring(leftBound, fileName.length());
+        return name.substring(leftBound, name.length());
     }
     
     /**
      * Allows user to browse through their directory for an image file.
      * 
      * Selected image file is then added to canvas.
-     * 
-     * @return opened
      */
-    public boolean open(){//Find a way to "refresh" application
+    private void open(){//Find a way to "refresh" application
         try{
             FileChooser fileChooser = makeFileChooser();
 
@@ -164,17 +190,15 @@ public class FileHandler {
                 canvas.openImage(image);
 
                 imageLoaded = true;
-                logger.log("User opened file " + selectedFile.toString());
-                System.out.println("Opened file " + selectedFile.toString());
                 
-                return true;
-            } catch (Exception ex) {
+                logger.logFile(selectedFile.toString(), "open");
+
+                System.out.println("Opened file " + selectedFile.toString());
+            } catch (FileNotFoundException ex) {
                 System.out.println("File not found");
-                return false;
             }
         } catch (Exception e){
             System.out.println("User cancelled action");
-            return false;
         }
     }
     
@@ -184,10 +208,11 @@ public class FileHandler {
     public void autosave(){
         
         try {
-            ImageIO.write(canvas.screenshot(false), getFileExt(dummyFile), dummyFile);
-            logger.log("Automatically saved file as " + selectedFile.toString());
+            ImageIO.write(canvas.screenshot(true), getFileExt(dummyFile), dummyFile);
+            
+            logger.logFile(dummyFile.toString(), "autosave");
+
             System.out.println("File automatically saved as " + dummyFile.toString());
-            //canvas.fileSaved = true;
         } catch (IOException ex) {
             Logger.getLogger(PaintBackUp.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("Could not sutomatically save file");
@@ -204,7 +229,9 @@ public class FileHandler {
         if(userSaved){
             try {
                 ImageIO.write(canvas.screenshot(true), getFileExt(selectedFile), selectedFile);
-                logger.log("Saved file as " + selectedFile.toString());
+
+                logger.logFile(selectedFile.toString(), "save");
+
                 System.out.println("File successfully saved as " + selectedFile.toString());
                 canvas.fileSaved = true;
                 return true;
@@ -254,12 +281,15 @@ public class FileHandler {
                     }
                     selectedFile = tempFile;
                     
-                    ImageIO.write(canvas.screenshot(false), getFileExt(selectedFile), selectedFile);
-                    logger.log("User saved file as " + selectedFile.toString());
+                    ImageIO.write(canvas.screenshot(true), getFileExt(selectedFile), selectedFile);
+                    
+                    logger.logFile(selectedFile.toString(), "save");                    
+
                     System.out.println("File successfully saved as " + selectedFile.toString());
                     canvas.fileSaved = true;
+                    userSaved = true;
                     return true;
-                } catch (Exception ex) {
+                } catch (IOException ex) {
                     Logger.getLogger(PaintBackUp.class.getName()).log(Level.SEVERE, null, ex);
                     System.out.println("Could not save file");
                     return false;
@@ -274,7 +304,10 @@ public class FileHandler {
     }
     
     
-    //If user saves file with a dif ext, show popup warning
+    /**
+     * Displays a warning about data loss, only if user tries to save file
+     * as a different file type.
+     */
     private void showAlterationWarning(){
         try{
             final int W = 300, H = 250;
@@ -289,7 +322,6 @@ public class FileHandler {
 
             Button close = new Button("OK");
             close.setOnAction((ActionEvent e) -> {
-                //userSaidYes = true;
                 popupwindow.close();
             });
 
@@ -312,16 +344,20 @@ public class FileHandler {
             
         }
     }
-
     
     /**
      * Shows a pop up if program is unsaved, and asks user if they would like 
-     * to Save, Don't Save, or Cancel 
+     * to Save, Don't Save, or Cancel. 
      * 
-     * Exits program if Save or Don't Save are pressed, but does nothing if 
-     * Cancel is pressed
+     * If called from exit button, exits program if Save or Don't Save are pressed, 
+     * but does nothing if Cancel is pressed.
+     * 
+     * If called from open button, allows user to open an image if Save or Don't 
+     * Save are pressed, but does nothing if Cancel is pressed.
+     * 
+     * @param attemptToExitApp
      */
-    public void exitApp(){
+    public void showExitWarning(boolean attemptToExitApp){
         if(!canvas.fileSaved)
         {               
             Stage popupwindow=new Stage();
@@ -336,26 +372,29 @@ public class FileHandler {
             label.setPrefHeight(HEIGHT-50);
             label.setWrapText(true);
 
-            //Save file and close popup and program
+            /*
+                Save file and if called from exit will close app; if called 
+                from open, will ask your to open an image
+            */
             Button save_btn = new Button("Save");
-            save_btn.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent e) {
-                    save();
-                    System.out.println("File successfully closed.");
-                    popupwindow.close();
-                    window.close();
+            save_btn.setOnAction((ActionEvent e) -> {
+                if(attemptToExitApp){
+                    closeWarning(popupwindow, true, false, true);
+                }else{
+                    closeWarning(popupwindow, true, true, false);
                 }
             });
 
-            //Close popup and program
+            /*
+                Don't save file and if called from exit will close app; if called 
+                from open, will ask your to open an image
+            */
             Button exit_btn = new Button("Don't Save");                                             
-            exit_btn.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent e) {
-                    System.out.println("File successfully closed.");
-                    popupwindow.close();
-                    window.close();
+            exit_btn.setOnAction((ActionEvent e) -> {
+                if(attemptToExitApp){
+                    closeWarning(popupwindow, false, false, true);
+                }else{
+                    closeWarning(popupwindow, false, true, false);
                 }
             });
 
@@ -365,12 +404,9 @@ public class FileHandler {
 
             ToolBar buttons = new ToolBar();
             buttons.getItems().addAll(save_btn, exit_btn, cancel_btn);
-            cancel_btn.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent e) {
-                    System.out.println("User declined action.");
-                    popupwindow.close();
-                }
+            cancel_btn.setOnAction((ActionEvent e) -> {
+                System.out.println("User declined action.");
+                popupwindow.close();
             });
             buttons.setPrefWidth(WIDTH);
             buttons.setPrefHeight(50);
@@ -385,9 +421,56 @@ public class FileHandler {
             popupwindow.setScene(scene1);
             popupwindow.showAndWait();
         }else{
-            System.out.println("File successfully closed.");
-            window.close();
+            if(attemptToExitApp){
+                System.out.println("File successfully closed.");
+                window.close();
+            }else{
+                open();
+            }
         }
     }
+    
+    /**
+     * Closes popupwindow, and if willSave, saves the project; if openImage,
+     * allows user to open an image onto the canvas; if willShutdown,
+     * completely shuts down the program.
+     * @param popupwindow
+     * @param willSave
+     * @param openImage
+     * @param willShutdown 
+     */
+    private void closeWarning(Stage popupwindow, boolean willSave, 
+            boolean openImage, boolean willShutdown)
+    {
+        popupwindow.close();
+        if(willSave){
+            save();
+        }
+        if(openImage){
+            open();
+        }
+        if(willShutdown){
+            shutdown();
+        }
+    }
+    
+    /**
+     * Closes Primary Stage, as well as stops all running threads.
+     */
+    public void shutdown(){
+        System.out.println("File successfully closed.");
+        canvas.packUpTools();
+        window.close();
+        autosave();
+        //menu.scrap();
+        thread.stop();
+        try {
+            logger.publish();
+        } catch (IOException ex) {
+            Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
 }
+
 

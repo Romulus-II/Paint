@@ -19,11 +19,11 @@ import javafx.util.Duration;
  *
  * @author G-sta
  */
-public class Timer{
+public class Timer extends Task {
 
     private FileHandler fh;
-    private final Clock clock;
     
+    private Timeline clock;
     
     private int timesAutoSaved = 0;
     
@@ -34,7 +34,11 @@ public class Timer{
     //Checks if timer is done
     private boolean complete = false;
     
-
+    /**
+     * Allows for the program to be able to have a set time interval for autosave.
+     * @param fh
+     * @param label 
+     */
     public Timer(FileHandler fh, Label label) {
         this.fh = fh;
         
@@ -43,47 +47,60 @@ public class Timer{
         minutes = 2;
         seconds = 3;
         
-        clock = new Clock();
-        
         label.textProperty().bind(time);
     }
     
+    /**
+     * Returns a StringProperty to be used in the timer's label on MenuBar.
+     * @return time StringProperty
+     */
+    public StringProperty getTime(){return time;}
+    
+    /**
+     * Returns an integer representation of minutes.
+     * @return minutes
+     */
     public int getMinutes(){return minutes;}
     
+    /**
+     * Returns an integer representation of seconds.
+     * @return 
+     */
     public int getSeconds(){return seconds;}
+
+    /**
+     * Method to be called when a thread of timer is implemented.
+     * @return Nothing.
+     * @throws Exception 
+     */
+    @Override
+    protected String call() throws Exception {
+        final Duration PROBE_FREQ = Duration.seconds(1);
             
-    class Clock{
-        
-        private Timeline clock;
-        
-        private Clock() {
             
-            final Duration PROBE_FREQ = Duration.seconds(1);
-            
-            //thread = new Thread(this);
-            
-            clock = new Timeline(
-                new KeyFrame(
-                    Duration.ZERO,
-                    new EventHandler<ActionEvent>() {
-                        @Override public void handle(ActionEvent event){
-                            time.setValue(tickTock());
-                            //label.setText(setTime());
-                        }
+        clock = new Timeline(
+            new KeyFrame(
+                Duration.ZERO,
+                new EventHandler<ActionEvent>() {
+                    @Override public void handle(ActionEvent event){
+                        time.setValue(tickTock());
+                        //label.setText(setTime());
                     }
-                ),
-                new KeyFrame(
-                    PROBE_FREQ
-                )
-            );
-            clock.setCycleCount(Timeline.INDEFINITE);
-            clock.play();
-        }    
-        
-        
+                }
+            ),
+            new KeyFrame(
+                PROBE_FREQ
+            )
+        );
+        clock.setCycleCount(Timeline.INDEFINITE);
+        clock.play();
+        return time.getValue();
+            
     }
     
-    //Decreases timer by a second and returns formatted string of reamaining time
+    /**
+     * Decreases timer by a second and returns formatted string of reamaining time
+    **/
     private String tickTock() {
         
         //If timer is done, "reset" timer(add 2 minutes)

@@ -26,6 +26,11 @@ public class NumberStringFilteredConverter extends NumberStringConverter {
         // This solution can instead extend other NumberStringConverters if needed
         //    e.g. CurrencyStringConverter or PercentageStringConverter.
 
+    /**
+     *
+     * @return
+     */
+
         public UnaryOperator<TextFormatter.Change> getFilter() {
             return change -> {
                 String newText = change.getControlNewText();

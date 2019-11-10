@@ -10,27 +10,91 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 
+/**
+ *
+ * @author G-sta
+ */
 public class CustomShape {
 
-    protected double startX, startY;
+    /**
+     *
+     */
+    protected double startX,
+
+    /**
+     *
+     */
+    startY;
     private final String name;
+
+    /**
+     *
+     */
     protected Pane pane;
     
+    /**
+     *
+     */
     protected Line line;    
+
+    /**
+     *
+     */
     protected Circle circle;
+
+    /**
+     *
+     */
     protected Ellipse ellipse;
+
+    /**
+     *
+     */
     protected Rectangle square;
+
+    /**
+     *
+     */
     protected Rectangle rect;
+
+    /**
+     *
+     */
     protected Polygon diamond;
+
+    /**
+     *
+     */
     protected Polygon right_triangle;    
+
+    /**
+     *
+     */
     protected Polygon polygon;
     Circle point1, point2;
+
+    /**
+     *
+     */
     protected Polygon arrow;
-    protected Polygon leftArrow, upArrow, rightArrow, downArrow;
     
+    /**
+     *
+     */
     protected double[] pointsX;
+
+    /**
+     *
+     */
     protected double[] pointsY;
     
+    /**
+     * Base constructor used for any shape except polygon.
+     * @param pane
+     * @param name
+     * @param x
+     * @param y 
+     */
     public CustomShape(Pane pane, String name, double x, double y){
         startX = x;
         startY = y;
@@ -72,7 +136,14 @@ public class CustomShape {
             pointsY = new double[7];
         }
     }
-   //separate constructor for polygons
+    
+   /**
+    * separate constructor for polygons
+     * @param pane
+     * @param sides
+     * @param x
+     * @param y
+    */ 
     public CustomShape(Pane pane, int sides, double x, double y){
         startX = x;
         startY = y;
@@ -84,55 +155,83 @@ public class CustomShape {
         pointsY = new double[sides];
     }
     
+    /**
+     * Used for creating the rectangle for text box and select area.
+     */
     public void initialize(){
         rect.setStroke(Color.BLACK);
         rect.setFill(Color.TRANSPARENT);
         pane.getChildren().add(rect);
     }
-    public void initialize(String outline, String fill, ColorPicker cp, GraphicsContext gc){
+    /**
+     * Used for creating shapes.
+     * @param outline
+     * @param fill
+     * @param op
+     * @param fp
+     * @param gc 
+     */
+    public void initialize(String outline, String fill, ColorPicker op, ColorPicker fp, GraphicsContext gc){
         Color outline_color, fill_color;
         if(outline.equals("none")){
             outline_color = Color.TRANSPARENT;
         }else{
-            outline_color = cp.getValue();
+            outline_color = op.getValue();
         }
         if(fill.equals("none")){
             fill_color = Color.TRANSPARENT;
         }else{
-            fill_color = cp.getValue();
+            fill_color = fp.getValue();
         }
         outline(outline, outline_color, gc);
         fill(fill, fill_color);
-        if(name.equals("line")){//Convert to switch            
-            
-            pane.getChildren().add(line);  
-            
-        }else if(name.equals("circle")){
-            pane.getChildren().add(circle);
-        }else if(name.equals("ellipse")){
-            pane.getChildren().add(ellipse);
-        }else if(name.equals("square")){
-            pane.getChildren().add(square);
-        }else if(name.equals("rectangle")){
-            pane.getChildren().add(rect);
-        }else if(name.equals("diamond")){
-            pane.getChildren().add(diamond);
-        }else if(name.equals("right_triangle")){
-            pane.getChildren().add(right_triangle);
-        }else if(name.equals("polygon")){
-            pane.getChildren().add(polygon);
-        }else if(name.equals("left_arrow")){
-            pane.getChildren().add(arrow);
-        }else if(name.equals("up_arrow")){
-            pane.getChildren().add(arrow);
-        }else if(name.equals("right_arrow")){
-            pane.getChildren().add(arrow);
-        }else if(name.equals("down_arrow")){
-            pane.getChildren().add(arrow);
-        }
+        addToPane();
         
     }
     
+    /**
+     * Adds the appropriate shape to the canvas' drawing pane
+     */
+    private void addToPane(){
+        switch(name){
+            case "line":
+                pane.getChildren().add(line);
+                break;
+            case "circle":
+                pane.getChildren().add(circle);
+                break;
+            case "ellipse":
+                pane.getChildren().add(ellipse);
+                break;
+            case "square":
+                pane.getChildren().add(square);
+                break;
+            case "rectangle":
+                pane.getChildren().add(rect);
+                break;
+            case "diamond":
+                pane.getChildren().add(diamond);
+                break;
+            case "right_triangle":
+                pane.getChildren().add(right_triangle);
+                break;
+            case "polygon":
+                pane.getChildren().add(polygon);
+                break;
+            case "left_arrow":
+            case "up_arrow":
+            case "right_arrow":
+            case "down_arrow":
+                pane.getChildren().add(arrow);
+                break;
+        }
+    }
+    
+    /**
+     * Adjusts shape's dimensions so user can see the outcome.
+     * @param x
+     * @param y 
+     */
     public void adjust(double x, double y){
         if(name.equals("line")){
             if (line == null) {
@@ -331,12 +430,12 @@ public class CustomShape {
                 pointsX[6], pointsY[6]
             });
             double halfWidth = ((x-startX)/2);
-            double halfHeight = ((x-startX)/2);
+            double halfHeight = ((y-startY)/2);
             double quarterHeight = ((y-startY)/4);
-            pointsX = new double[]{startX, x-halfWidth, x-halfWidth, x, 
-                        x, x-halfWidth, x-halfWidth};
-            pointsY = new double[]{startY+halfHeight, startY, startY+quarterHeight, 
-                        startY+quarterHeight, y-quarterHeight, y-quarterHeight, y};
+            pointsX = new double[]{startX, startX+halfWidth, startX+halfWidth, x, 
+                        x-halfWidth, x-halfWidth, startX};
+            pointsY = new double[]{startY+quarterHeight, startY+quarterHeight, startY, 
+                        startY+halfHeight, y, y-quarterHeight, y-quarterHeight};
             arrow.getPoints().addAll(new Double[]{
                 pointsX[0], pointsY[0], pointsX[1], pointsY[1],
                 pointsX[2], pointsY[2], pointsX[3], pointsY[3],
@@ -355,7 +454,7 @@ public class CustomShape {
             });
             double halfWidth = ((x-startX)/2);
             double quarterWidth = ((x-startX)/4);
-            double halfHeight = ((x-startX)/2);
+            double halfHeight = ((y-startY)/2);
             pointsX = new double[]{startX, startX+quarterWidth, startX+quarterWidth, 
                         x-quarterWidth, x-quarterWidth, x, x-halfWidth}; 
             pointsY = new double[]{startY+halfHeight, startY+halfHeight, startY,
@@ -369,70 +468,93 @@ public class CustomShape {
         }
     }
     
+    /**
+     * Applies the fill of this shape.
+     * @param fill
+     * @param c 
+     */
     public void fill(String fill, Color c){
-        if(name.equals("line")){
-            line.setFill(c);
-        }else if(name.equals("circle")){
-            circle.setFill(c);
-        }else if(name.equals("ellipse")){
-            ellipse.setFill(c);
-        }else if(name.equals("square")){
-            square.setFill(c);
-        }else if(name.equals("rectangle")){
-            rect.setFill(c);
-        }else if(name.equals("diamond")){
-            diamond.setFill(c);
-        }else if(name.equals("right_triangle")){
-            right_triangle.setFill(c);
-        }else if(name.equals("polygon")){
-            polygon.setFill(c);
-        }else if(name.equals("left_arrow")){
-            arrow.setFill(c);
-        }else if(name.equals("up_arrow")){
-            arrow.setFill(c);
-        }else if(name.equals("right_arrow")){
-            arrow.setFill(c);
-        }else if(name.equals("down_arrow")){
-            arrow.setFill(c);
+        switch(name){
+            case "line":
+                line.setFill(c);
+                break;
+            case "circle":
+                circle.setFill(c);
+                break;
+            case "ellipse":
+                ellipse.setFill(c);
+                break;
+            case "square":
+                square.setFill(c);
+                break;
+            case "rectangle":
+                rect.setFill(c);
+                break;
+            case "diamond":
+                diamond.setFill(c);
+                break;
+            case "right_triangle":
+                right_triangle.setFill(c);
+                break;
+            case "polygon":
+                polygon.setFill(c);
+                break;
+            case "left_arrow":
+            case "up_arrow":
+            case "right_arrow":
+            case "down_arrow":
+                arrow.setFill(c);
+                break;
         }
-    }   
+    }
+    
+    /**
+     * Applies the outline of this shape.
+     * @param outline
+     * @param c
+     * @param gc 
+     */
     public void outline(String outline, Color c, GraphicsContext gc){
-        if(name.equals("line")){
-            line.setStrokeWidth(gc.getLineWidth());
-            line.setStroke(c);
-        }else if(name.equals("circle")){
-            circle.setStrokeWidth(gc.getLineWidth());
-            circle.setStroke(c);
-        }else if(name.equals("ellipse")){
-            ellipse.setStrokeWidth(gc.getLineWidth());
-            ellipse.setStroke(c);
-        }else if(name.equals("square")){
-            square.setStrokeWidth(gc.getLineWidth());
-            square.setStroke(c);
-        }else if(name.equals("rectangle")){
-            rect.setStrokeWidth(gc.getLineWidth());
-            rect.setStroke(c);
-        }else if(name.equals("diamond")){
-            diamond.setStrokeWidth(gc.getLineWidth());
-            diamond.setStroke(c);
-        }else if(name.equals("right_triangle")){
-            right_triangle.setStrokeWidth(gc.getLineWidth());
-            right_triangle.setStroke(c);
-        }else if(name.equals("polygon")){
-            polygon.setStrokeWidth(gc.getLineWidth());
-            polygon.setStroke(c);
-        }else if(name.equals("left_arrow")){
-            arrow.setStrokeWidth(gc.getLineWidth());
-            arrow.setStroke(c);
-        }else if(name.equals("up_arrow")){
-            arrow.setStrokeWidth(gc.getLineWidth());
-            arrow.setStroke(c);
-        }else if(name.equals("right_arrow")){
-            arrow.setStrokeWidth(gc.getLineWidth());
-            arrow.setStroke(c);
-        }else if(name.equals("down_arrow")){
-            arrow.setStrokeWidth(gc.getLineWidth());
-            arrow.setStroke(c);
+        switch(name){
+            case "line":
+                line.setStrokeWidth(gc.getLineWidth());
+                line.setStroke(c);
+                break;
+            case "circle":
+                circle.setStrokeWidth(gc.getLineWidth());
+                circle.setStroke(c);
+                break;
+            case "ellipse":
+                ellipse.setStrokeWidth(gc.getLineWidth());
+                ellipse.setStroke(c);
+                break;
+            case "square":
+                square.setStrokeWidth(gc.getLineWidth());
+                square.setStroke(c);
+                break;
+            case "rectangle":
+                rect.setStrokeWidth(gc.getLineWidth());
+                rect.setStroke(c);
+                break;
+            case "diamond":
+                diamond.setStrokeWidth(gc.getLineWidth());
+                diamond.setStroke(c);
+                break;
+            case "right_triangle":
+                right_triangle.setStrokeWidth(gc.getLineWidth());
+                right_triangle.setStroke(c);
+                break;
+            case "polygon":
+                polygon.setStrokeWidth(gc.getLineWidth());
+                polygon.setStroke(c);
+                break;
+            case "left_arrow":
+            case "up_arrow":
+            case "right_arrow":
+            case "down_arrow":
+                arrow.setStrokeWidth(gc.getLineWidth());
+                arrow.setStroke(c);
+                break;
         }
     }
 
