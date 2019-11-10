@@ -188,13 +188,13 @@ public class PaintBackUp extends Application{// implements EventHandler<ActionEv
         thread.start();*/
         
         
-        /*if(openingProj){
+        if(openingProj){
             fh = new FileHandler(window, canvas, logger, "openPrevious");
         }else if(openingFromGallery){
             fh = new FileHandler(window, canvas, logger, "openFromGallery");
-        }else{*/
+        }else{
             fh = new FileHandler(window, canvas, logger, "");
-        //}
+        }
         
         
         menu = new CustomMenu(fh);
